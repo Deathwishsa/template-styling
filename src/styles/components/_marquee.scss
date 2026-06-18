@@ -1,0 +1,33 @@
+@use "../abstracts/mixins" as *;
+
+.marquee {
+  position: relative;
+  z-index: var(--z-content);
+  padding-block: clamp(2rem, 5vh, 4rem);
+  border-block: 1px solid var(--c-line);
+  overflow: hidden;
+  white-space: nowrap;
+  background: var(--c-bg);
+}
+
+.marquee__track {
+  display: inline-flex;
+  gap: 3rem;
+  will-change: transform;
+
+  span {
+    @include fluid-type(1.75rem, 3.5rem);
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: var(--c-fg);
+    display: inline-flex;
+    align-items: center;
+    gap: 3rem;
+  }
+  span::after {
+    content: "◦";
+    color: var(--c-accent);
+  }
+}

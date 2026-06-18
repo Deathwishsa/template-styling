@@ -1,0 +1,43 @@
+@use "sass:map";
+@use "sass:math";
+@use "tokens" as *;
+
+// ─── Responsive: respond-to("md") → max-width media query ─────────────────────
+@mixin respond-to($name) {
+  @if map.has-key($breakpoints, $name) {
+    @media (max-width: map.get($breakpoints, $name)) {
+      @content;
+    }
+  } @else {
+    @error "Unknown breakpoint: #{$name}";
+  }
+}
+
+// ─── Fluid type/space: linear interpolation between two viewport widths ───────
+// @include fluid(font-size, 768px, 1440px, 1.5rem, 3rem);
+@function strip($n) {
+  @return math.div($n, ($n * 0 + 1));
+}
+
+@mixin fluid($prop, $min-vw, $max-vw, $min-val, $max-val) {
+  #{$prop}: $min-val;
+
+  @media (min-width: $min-vw) {
+    $slope: math.div(strip($max-val) - strip($min-val), strip($max-vw) - strip($min-vw));
+    $intercept: strip($min-val) - $slope * strip($min-vw);
+    #{$prop}: clamp(
+      #{$min-val},
+      #{$intercept * 1px} + #{$slope * 100}vw,
+      #{$max-val}
+    );
+  }
+
+  @media (min-width: $max-vw) {
+    #{$prop}: $max-val;
+  }
+}
+
+// Shorthand fluid font-size between md and xl breakpoints
+@mixin fluid-type($min, $max) {
+  @include fluid(font-size, 768px, 1440px, $min, $max);
+}

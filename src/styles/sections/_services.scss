@@ -1,0 +1,42 @@
+@use "../abstracts/mixins" as *;
+
+.services__list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--c-line);
+  border: 1px solid var(--c-line);
+
+  @include respond-to("md") {
+    grid-template-columns: 1fr;
+  }
+}
+
+.services__item {
+  background: var(--c-bg);
+  padding: clamp(2rem, 5vw, 4rem);
+  transition: background 0.4s var(--ease-out);
+
+  &:hover {
+    background: var(--c-surface);
+  }
+}
+
+.services__num {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--c-accent);
+  letter-spacing: 0.1em;
+}
+
+.services__title {
+  @include fluid-type(1.5rem, 2.5rem);
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 1.25rem 0 1rem;
+}
+
+.services__desc {
+  color: var(--c-fg-dim);
+  max-width: 42ch;
+}
