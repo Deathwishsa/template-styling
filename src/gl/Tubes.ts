@@ -44,6 +44,8 @@ export function createTubes(opts: TubesOptions): {
       uAmp: { value: 0.25 },
       uAccent: { value: hexToRgb(opts.accent) },
       uGlow: { value: hexToRgb(opts.glow) },
+      uTintColor: { value: new Vector3(0.15, 0.45, 1.0) },
+      uTint: { value: 0 },
     },
   });
 

@@ -21,6 +21,12 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+
+  // Text is not selectable for now (no click-drag highlight / copy).
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; // disable iOS long-press selection callout
 }
 
 // Lenis

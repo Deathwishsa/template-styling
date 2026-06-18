@@ -6,14 +6,40 @@
   z-index: var(--z-menu);
   background: var(--c-surface);
   backdrop-filter: blur(12px);
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.7s var(--ease-in-out);
+  // Ripple reveal/retract: a circle anchored near the menu button (top-right).
+  // The radius (--clip) is driven by GSAP in menu.ts.
+  clip-path: circle(var(--clip, 0%) at 92% 5%);
+  pointer-events: none;
 }
 .menu.is-open {
-  clip-path: inset(0 0 0% 0);
+  pointer-events: auto;
 }
 .menu[hidden] {
   display: block; // animated, controlled via class — keep painted
+}
+
+.menu__close {
+  position: absolute;
+  top: 1.5rem;
+  right: var(--gutter);
+  z-index: 1;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--c-fg);
+  transition: transform 0.45s var(--ease-out), background 0.3s var(--ease-out);
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+  &:hover {
+    transform: rotate(90deg);
+    background: color-mix(in oklab, var(--c-fg) 8%, transparent);
+  }
 }
 
 .menu__inner {

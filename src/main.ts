@@ -25,6 +25,9 @@ gsap.registerPlugin(ScrollTrigger);
 function boot(): void {
   document.body.classList.add("is-loading");
 
+  // Dev-only: expose gsap for manual timeline inspection in the console.
+  if (import.meta.env.DEV) (window as unknown as { __gsap?: typeof gsap }).__gsap = gsap;
+
   // 1. Brand + content from the single config source of truth
   applyBrand(site);
   populateDom(site);

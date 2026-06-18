@@ -88,8 +88,8 @@ export interface SiteConfig {
 
 export const site: SiteConfig = {
   brand: {
-    name: "Studio",
-    tagline: "We craft immersive digital experiences.",
+    name: "Jarryd Studio",
+    tagline: "Crafted immersive digital experience.",
     logoText: "Studio◦",
     colors: {
       bg: "#05060a",
@@ -100,8 +100,8 @@ export const site: SiteConfig = {
   },
 
   contact: {
-    email: "hello@studio.com",
-    phone: "+1 555 0100",
+    email: "jstudio@gmail.com",
+    phone: "+27 111 0100",
     address: "Cape Town, South Africa",
   },
 
@@ -120,9 +120,9 @@ export const site: SiteConfig = {
   ],
 
   hero: {
-    headline: "Design that moves.",
-    sub: "An independent studio building immersive, real‑time web experiences for ambitious brands.",
-    cta: "View our work",
+    headline: "Creativity that moves.",
+    sub: "An independent studio building immersive, real‑time web experiences for ambitious brands. Click and hold left side of screen, then try right, then try both?",
+    cta: "View my work",
   },
 
   marquee: [
@@ -164,7 +164,7 @@ export const site: SiteConfig = {
   about: {
     label: "About",
     statement:
-      "We are a small team of designers and engineers obsessed with the craft of the web — where motion, code and art direction meet to create work that people remember.",
+      "One man - designer and engineer obsessed with the craft of the web — where motion, code and art direction meet to create work that people remember.",
     stats: [
       { value: "120+", label: "Projects shipped" },
       { value: "18", label: "Awards" },
@@ -179,11 +179,11 @@ export const site: SiteConfig = {
   },
 
   meta: {
-    title: "Studio — Immersive Digital Experiences",
+    title: "Jarryd Studio — Immersive Digital Experiences",
     description:
       "An independent studio building immersive, real-time web experiences for ambitious brands.",
     ogImage: "/og.jpg",
-    url: "https://studio.example.com",
+    url: "https://jarrydstudio.example.com",
   },
 
   options: {

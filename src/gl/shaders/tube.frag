@@ -4,6 +4,8 @@ uniform float uTime;
 uniform vec3 uAccent;
 uniform vec3 uGlow;
 uniform float uScroll;
+uniform vec3 uTintColor; // side-hold tint (blue / red / purple)
+uniform float uTint;     // 0..1 fade amount
 
 varying vec3 vNormalW;
 varying vec3 vViewDir;
@@ -22,6 +24,10 @@ void main() {
   // glow rather than blowing out to white)
   vec3 color = base * (0.18 + 0.45 * fres);
   color += uGlow * pow(fres, 1.6) * 0.5;
+
+  // Side-hold tint fades in over time; fresnel-shaped so it keeps its depth.
+  vec3 tinted = uTintColor * (0.5 + fres * 1.3);
+  color = mix(color, tinted, uTint * 0.9);
 
   // Low per-fragment alpha so many overlapping tubes accumulate gently
   float alpha = 0.16 + 0.4 * fres;

@@ -5,6 +5,7 @@ import {
   Scene,
   ShaderMaterial,
   Vector2,
+  Vector3,
   WebGLRenderer,
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
@@ -19,6 +20,12 @@ import { clamp, damp, lerp } from "../utils/math";
 const BOOST_TIME_SCALE = 3.5;
 // Tilt range (degrees) that maps to the full -1..1 parallax extent.
 const TILT_RANGE = 28;
+
+// Hold-by-side tint colors (normalized RGB) and how long the fade takes.
+const TINT_BLUE = new Vector3(0.15, 0.45, 1.0); // left side
+const TINT_RED = new Vector3(1.0, 0.18, 0.22); // right side
+const TINT_PURPLE = new Vector3(0.62, 0.2, 1.0); // both sides
+const TINT_FADE_SECONDS = 5;
 
 interface HeroSceneOpts {
   canvas: HTMLCanvasElement;
@@ -48,9 +55,14 @@ export class HeroScene {
   private lastTime = 0;
   private useBloom: boolean;
 
-  // Press-and-hold speed boost (mouse click on desktop / touch on mobile)
-  private pressed = false;
+  // Active pressing pointers → clientX, so we know which side(s) are held.
+  // Supports multi-touch (e.g. both sides at once on mobile = purple).
+  private pointers = new Map<number, number>();
   private timeScale = 1;
+
+  // Side-hold color tint, ramped over TINT_FADE_SECONDS.
+  private tintAmount = 0;
+  private tintColor = TINT_BLUE.clone();
 
   // Device-tilt parallax (mobile) — calibrated to the first reading so the
   // phone's resting angle becomes the neutral center.
@@ -126,6 +138,10 @@ export class HeroScene {
   }
 
   private onPointerMove = (e: PointerEvent): void => {
+    // Track the live X of any held pointer (so dragging across the midline
+    // switches sides).
+    if (this.pointers.has(e.pointerId)) this.pointers.set(e.pointerId, e.clientX);
+
     // Mouse hover (desktop). Touch devices drive parallax via tilt instead.
     if (e.pointerType === "touch") return;
     this.targetMouse.set(
@@ -134,13 +150,13 @@ export class HeroScene {
     );
   };
 
-  private onPointerDown = (): void => {
-    this.pressed = true;
+  private onPointerDown = (e: PointerEvent): void => {
+    this.pointers.set(e.pointerId, e.clientX);
     void this.requestOrientationPermission();
   };
 
-  private onPointerUp = (): void => {
-    this.pressed = false;
+  private onPointerUp = (e: PointerEvent): void => {
+    this.pointers.delete(e.pointerId);
   };
 
   /** iOS: ask for motion permission on a user gesture, then start listening. */
@@ -219,11 +235,44 @@ export class HeroScene {
     const dt = Math.min((now - this.lastTime) / 1000, 0.05);
     this.lastTime = now;
 
+    // Which side(s) are being held? Only counts while the hero is on screen.
+    let leftActive = false;
+    let rightActive = false;
+    if (this.scroll < 0.95 && this.pointers.size > 0) {
+      const mid = window.innerWidth / 2;
+      for (const x of this.pointers.values()) {
+        if (x < mid) leftActive = true;
+        else rightActive = true;
+      }
+    }
+    const anySide = leftActive || rightActive;
+
     // Press-and-hold speeds the flow up; release eases it back to normal.
-    // Only boosts while the hero is on screen so taps lower down don't.
-    const targetScale = this.pressed && this.scroll < 0.95 ? BOOST_TIME_SCALE : 1;
+    const targetScale = anySide ? BOOST_TIME_SCALE : 1;
     this.timeScale = lerp(this.timeScale, targetScale, damp(5, dt));
     this.clock += dt * this.timeScale;
+
+    // Side-hold tint: left → blue, right → red, both → purple. Amount fades
+    // in/out over ~5s; the hue eases toward whichever side is active.
+    const targetTint =
+      leftActive && rightActive
+        ? TINT_PURPLE
+        : leftActive
+          ? TINT_BLUE
+          : rightActive
+            ? TINT_RED
+            : null;
+    this.tintAmount = clamp(
+      this.tintAmount + ((targetTint ? 1 : -1) * dt) / TINT_FADE_SECONDS,
+      0,
+      1
+    );
+    if (targetTint) {
+      const c = damp(3, dt);
+      this.tintColor.x = lerp(this.tintColor.x, targetTint.x, c);
+      this.tintColor.y = lerp(this.tintColor.y, targetTint.y, c);
+      this.tintColor.z = lerp(this.tintColor.z, targetTint.z, c);
+    }
 
     // Eased pointer follow (frame-rate independent)
     const k = damp(6, dt);
@@ -234,6 +283,8 @@ export class HeroScene {
     u.uTime.value = this.clock;
     u.uMouse.value.copy(this.mouse);
     u.uScroll.value = this.scroll;
+    u.uTint.value = this.tintAmount;
+    u.uTintColor.value.copy(this.tintColor);
 
     // Idle rotation + parallax (rotation also scales with the boost)
     this.group.rotation.y += dt * 0.05 * this.timeScale;

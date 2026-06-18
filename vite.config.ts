@@ -7,7 +7,12 @@ import basicSsl from "@vitejs/plugin-basic-ssl";
 // preview tooling stays on plain HTTP.
 const useHttps = process.env.VITE_HTTPS === "1";
 
+// Base public path. Defaults to "/" (custom domain / local). For GitHub Pages
+// project sites the deploy script sets VITE_BASE="/template-styling/".
+const base = process.env.VITE_BASE || "/";
+
 export default defineConfig({
+  base,
   plugins: [glsl(), ...(useHttps ? [basicSsl()] : [])],
   server: {
     host: true,
