@@ -13,9 +13,12 @@ $env:NODE_OPTIONS = "--max-old-space-size=4096"
 
 Write-Host "🚀 Vite Deploy to Live - Starting (v1)..." -ForegroundColor Cyan
 
-# 1. Stash any changes to the script / working tree
+# 1. Stash any changes to the script / working tree (track whether we actually
+#    stashed, so the matching pop at the end doesn't error on a clean tree).
 Write-Host "Step 1: Stashing working-tree changes..." -ForegroundColor Yellow
-git stash push -m "temp stash" --include-untracked
+$stashTag = "deploy-temp-stash"
+git stash push -m $stashTag --include-untracked
+$didStash = [bool]((git stash list) -match $stashTag)
 
 # 2. Get latest prod
 Write-Host "Step 2: Pulling latest prod..." -ForegroundColor Yellow
@@ -90,7 +93,7 @@ $commitMessage = "Deploy: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $deployTyp
 git commit -m $commitMessage
 git push origin live --force
 
-git stash pop -q 2>$null
+if ($didStash) { git stash pop -q }
 
 Write-Host "`n🎉 SUCCESS! Deployment completed." -ForegroundColor Green
 Write-Host "Live site: https://deathwishsa.github.io/template-styling/" -ForegroundColor Magenta
