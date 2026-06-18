@@ -62,12 +62,15 @@ if (-Not (Test-Path "dist/index.html")) {
 }
 Write-Host "✅ Build successful!" -ForegroundColor Green
 
-# 6. Clean everything except this script + .git + dist + dotfiles
+# 6. Clean everything except this script + .git + dist + node_modules + dotfiles
+#    (node_modules is gitignored and its binaries are often locked right after a
+#     build, so we leave it in place — never committed, speeds up the next run.)
 Write-Host "Step 6: Cleaning non-build files..." -ForegroundColor Yellow
 Get-ChildItem -Path . | Where-Object {
     $_.Name -ne "deploy-to-live.ps1" -and
     $_.Name -ne ".git" -and
     $_.Name -ne "dist" -and
+    $_.Name -ne "node_modules" -and
     $_.Name -notlike ".*"
 } | Remove-Item -Recurse -Force
 
