@@ -15,6 +15,7 @@ import { initMenu } from "./ui/menu";
 import { initCursor } from "./ui/cursor";
 import { initMarquee } from "./ui/marquee";
 import { initCounters, resetCounters } from "./ui/counters";
+import { initServices, resetServices } from "./ui/services";
 import { runPreloader } from "./ui/preloader";
 
 import { HeroScene } from "./gl/HeroScene";
@@ -39,6 +40,7 @@ function boot(): void {
     const w = window as unknown as { __gsap?: typeof gsap; __reset?: () => void };
     w.__gsap = gsap;
     w.__reset = () => {
+      resetServices();
       resetReveals();
       resetCounters();
     };
@@ -63,16 +65,19 @@ function boot(): void {
   initReveals();
   initMarquee();
   initCounters();
+  initServices(scroll);
 
-  // "Back to top" soft-resets the scroll animations (no preloader): scroll up,
-  // then reset reveals + counters so they replay on the way back down.
+  const resetAnimations = (): void => {
+    resetServices();
+    resetReveals();
+    resetCounters();
+  };
+
+  // "Back to top" soft-resets the scroll animations (no preloader): collapse any
+  // expanded tile, scroll up, then reset reveals + counters so they replay.
   document.querySelector<HTMLElement>("[data-scroll-top]")?.addEventListener("click", () => {
-    scroll.scrollTo(0, {
-      onComplete: () => {
-        resetReveals();
-        resetCounters();
-      },
-    });
+    resetServices();
+    scroll.scrollTo(0, { onComplete: resetAnimations });
   });
 
   // 5. WebGL hero (with graceful fallbacks)

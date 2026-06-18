@@ -15,11 +15,47 @@
 .services__item {
   background: var(--c-bg);
   padding: clamp(2rem, 5vw, 4rem);
+  cursor: pointer;
+  will-change: transform;
   transition: background 0.4s var(--ease-out);
 
   &:hover {
     background: var(--c-surface);
   }
+}
+
+// ── Click-to-expand overlay state (driven by ui/services.ts) ────────────────
+// Lift the whole section above the backdrop while a tile is expanded…
+.services.section.is-stage {
+  z-index: 80;
+}
+// …and drop the grey grid fill so scattered cells don't leave a grey box.
+.services.is-stage .services__list {
+  background: transparent;
+  border-color: transparent;
+}
+
+.services__item.is-active {
+  position: relative;
+  z-index: 5;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: 10px;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6);
+}
+
+.svc-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 78;
+  background: color-mix(in oklab, var(--c-bg) 86%, transparent);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+body.svc-open .svc-backdrop {
+  pointer-events: auto;
 }
 
 .services__num {
