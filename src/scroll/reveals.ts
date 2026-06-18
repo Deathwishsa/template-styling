@@ -12,12 +12,14 @@ import { prefersReducedMotion } from "../utils/device";
 export function initReveals(): void {
   const reduced = prefersReducedMotion();
 
-  // Simple reveals (with stagger for grouped siblings)
+  // Simple reveals (with stagger for grouped siblings). Trigger ~15% of the
+  // viewport height BEFORE the element enters view ("top 115%") so the fade
+  // finishes off-screen and you never catch it mid-load.
   ScrollTrigger.batch("[data-reveal]", {
-    start: "top 88%",
+    start: "top 115%",
     onEnter: (els) =>
       els.forEach((el, i) =>
-        gsap.delayedCall(reduced ? 0 : i * 0.08, () => el.classList.add("is-in"))
+        gsap.delayedCall(reduced ? 0 : i * 0.06, () => el.classList.add("is-in"))
       ),
   });
 
