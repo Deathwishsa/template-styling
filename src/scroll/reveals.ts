@@ -62,6 +62,33 @@ export function initReveals(): void {
   });
 }
 
+/**
+ * Resets every scroll reveal to its initial (hidden) state so they replay as
+ * the user scrolls down again — used by "back to top". Elements currently on
+ * screen (e.g. the hero at the top) are re-shown immediately so nothing is left
+ * blank; the batch/triggers re-fire for everything below the fold on scroll.
+ */
+export function resetReveals(): void {
+  const els = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-reveal], [data-split]")
+  );
+  const inView = (el: Element): boolean => {
+    const r = el.getBoundingClientRect();
+    return r.top < window.innerHeight && r.bottom > 0;
+  };
+
+  els.forEach((el) => el.classList.remove("is-in"));
+  // Force a reflow so removing/re-adding the class replays the transition.
+  void document.body.offsetHeight;
+
+  requestAnimationFrame(() => {
+    els.forEach((el) => {
+      if (inView(el)) el.classList.add("is-in");
+    });
+    ScrollTrigger.refresh();
+  });
+}
+
 /** Splits [data-words] text into spans. Run before initReveals. */
 export function splitWords(): void {
   document.querySelectorAll<HTMLElement>("[data-words]").forEach((el) => {

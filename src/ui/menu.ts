@@ -91,14 +91,11 @@ export function initMenu(scroll: ScrollContext): void {
     });
   });
 
-  // CTA + back-to-top
+  // Hero CTA (back-to-top is wired in main.ts so it can also reset animations)
   document.querySelector<HTMLElement>("[data-hero-cta]")?.addEventListener("click", (e) => {
     e.preventDefault();
     scroll.scrollTo("#work");
   });
-  document.querySelector<HTMLElement>("[data-scroll-top]")?.addEventListener("click", () =>
-    scroll.scrollTo(0)
-  );
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") setOpen(false);

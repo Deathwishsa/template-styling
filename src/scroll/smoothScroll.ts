@@ -5,9 +5,16 @@ import { prefersReducedMotion } from "../utils/device";
 
 gsap.registerPlugin(ScrollTrigger);
 
+export interface ScrollToOpts {
+  /** Fired when the scroll animation finishes. */
+  onComplete?: () => void;
+  /** Jump instantly instead of animating. */
+  immediate?: boolean;
+}
+
 export interface ScrollContext {
   lenis: Lenis | null;
-  scrollTo: (target: string | number) => void;
+  scrollTo: (target: string | number, opts?: ScrollToOpts) => void;
 }
 
 /**
@@ -21,10 +28,12 @@ export function initSmoothScroll(enabled: boolean): ScrollContext {
     ScrollTrigger.refresh();
     return {
       lenis: null,
-      scrollTo: (t) => {
+      scrollTo: (t, opts) => {
+        const behavior: ScrollBehavior = opts?.immediate ? "auto" : "smooth";
         const el = typeof t === "string" ? document.querySelector(t) : null;
-        if (el) el.scrollIntoView({ behavior: "smooth" });
-        else if (typeof t === "number") window.scrollTo({ top: t, behavior: "smooth" });
+        if (el) el.scrollIntoView({ behavior });
+        else if (typeof t === "number") window.scrollTo({ top: t, behavior });
+        if (opts?.onComplete) window.setTimeout(opts.onComplete, opts?.immediate ? 0 : 650);
       },
     };
   }
@@ -44,6 +53,11 @@ export function initSmoothScroll(enabled: boolean): ScrollContext {
 
   return {
     lenis,
-    scrollTo: (t) => lenis.scrollTo(t, { offset: 0 }),
+    scrollTo: (t, opts) =>
+      lenis.scrollTo(t, {
+        offset: 0,
+        immediate: opts?.immediate,
+        onComplete: opts?.onComplete,
+      }),
   };
 }

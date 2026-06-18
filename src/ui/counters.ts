@@ -22,6 +22,9 @@ export function initCounters(): void {
     const digits = match[1];
     const suffix = match[2] ?? "";
     el.style.setProperty("--n", digits.length.toString());
+    // Stash the final value so resetCounters() can rebuild the placeholder.
+    el.dataset.final = digits;
+    el.dataset.suffix = suffix;
 
     if (reduced) {
       el.textContent = raw;
@@ -31,13 +34,43 @@ export function initCounters(): void {
     // Placeholder so layout doesn't jump before it animates in.
     el.textContent = "0".repeat(digits.length) + suffix;
 
+    // No `once` — the guard below makes it decode a single time, but a reset
+    // (back to top) clears the guard so it can replay on the next scroll-in.
     ScrollTrigger.create({
       trigger: el,
       start: "top 88%",
-      once: true,
-      onEnter: () => decode(el, digits, suffix, 1100, i * 160),
+      onEnter: () => {
+        if (el.classList.contains("is-counting") || el.classList.contains("is-counted")) return;
+        decode(el, digits, suffix, 1100, i * 160);
+      },
     });
   });
+}
+
+/**
+ * Resets the stat counters back to their placeholder so they decode again on
+ * the next scroll-in (used by "back to top"). Any stat still on screen replays
+ * immediately.
+ */
+export function resetCounters(): void {
+  const reduced = prefersReducedMotion();
+  Array.from(document.querySelectorAll<HTMLElement>(".about__stat-value")).forEach(
+    (el, i) => {
+      el.classList.remove("is-counting", "is-counted");
+      const digits = el.dataset.final;
+      if (!digits) return;
+      const suffix = el.dataset.suffix ?? "";
+
+      if (reduced) {
+        el.textContent = digits + suffix;
+        return;
+      }
+
+      el.textContent = "0".repeat(digits.length) + suffix;
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) decode(el, digits, suffix, 1100, i * 160);
+    }
+  );
 }
 
 function decode(
