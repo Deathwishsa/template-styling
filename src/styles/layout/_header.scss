@@ -4,14 +4,25 @@
   position: fixed;
   inset: 0 0 auto 0;
   z-index: var(--z-header);
-  padding-block: 1.5rem;
-  transition: padding 0.4s var(--ease-out), background 0.4s var(--ease-out);
-  mix-blend-mode: difference; // crisp over any background
-  color: #fff;
+  padding-block: 1.15rem;
+  color: var(--c-fg);
+
+  // Frosted glass: translucent dark bar with a blurred backdrop.
+  background: color-mix(in oklab, var(--c-bg) 55%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid color-mix(in oklab, var(--c-fg) 9%, transparent);
+
+  transition: padding 0.4s var(--ease-out), background 0.4s var(--ease-out),
+    backdrop-filter 0.4s var(--ease-out);
 }
 
+// A touch more opaque/blurred once scrolled past the top.
 .header.is-condensed {
-  padding-block: 0.85rem;
+  padding-block: 0.7rem;
+  background: color-mix(in oklab, var(--c-bg) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
 .header__inner {
